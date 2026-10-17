@@ -30,10 +30,11 @@ func TestDetailGoalsFitPanel(t *testing.T) {
 		for _, selected := range []bool{false, true} {
 			for _, done := range []bool{false, true} {
 				for name, text := range map[string]string{
-					"sentence": strings.Repeat("Ship the next useful feature ", 12),
-					"unbroken": strings.Repeat("x", 300),
-					"wide":     strings.Repeat("開発目標", 80),
-					"unicode":  strings.Repeat("café 👩‍💻 e\u0301 ", 40),
+					"sentence":  strings.Repeat("Ship the next useful feature ", 12),
+					"unbroken":  strings.Repeat("x", 300),
+					"generated": strings.Repeat("x", 100*1024),
+					"wide":      strings.Repeat("開発目標", 80),
+					"unicode":   strings.Repeat("café 👩‍💻 e\u0301 ", 40),
 				} {
 					t.Run(fmt.Sprintf("%s/width=%d/selected=%t/done=%t", name, width, selected, done), func(t *testing.T) {
 						model := goalModel(text, done, selected)
@@ -86,5 +87,18 @@ func TestLongGoalsPreserveFullViewDimensions(t *testing.T) {
 				}
 			})
 		}
+	}
+}
+
+func BenchmarkLongGoalDetail(b *testing.B) {
+	for _, size := range []int{1024, 16 * 1024, 32 * 1024} {
+		b.Run(fmt.Sprintf("bytes=%d", size), func(b *testing.B) {
+			model := goalModel(strings.Repeat("x", size), false, true)
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				model.renderDetail(64, 20)
+			}
+		})
 	}
 }

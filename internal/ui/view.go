@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/snowtema/drift/internal/protocol"
 )
 
@@ -425,7 +426,7 @@ func (m Model) renderDetail(w, h int) string {
 		add("    " + Dim.Render("G to add a goal"))
 	}
 	for i, g := range p.Goals {
-		goalText := Truncate(g.Text, w-6)
+		goalText := ansi.Truncate(g.Text, w-6, "…")
 		isCursor := goalsActive && i == m.detailCursor
 		var icon, text string
 		if g.Done {
